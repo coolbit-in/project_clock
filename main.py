@@ -2,17 +2,18 @@
 # -*- coding:utf=8 -*-
 import wx, time, datetime
 from wx.lib.stattext import GenStaticText as StaticText 
+from wx.lib.buttons import GenButton as Button 
 class SuspendedFrame(wx.Frame):
 	def __init__(self, parent):
-		wx.Frame.__init__(self, parent, -1, "SuspendedFrame", size = (200, 40),
-			pos = (480, 180), style = wx.STAY_ON_TOP)
+		wx.Frame.__init__(self, parent, -1, "SuspendedFrame", size = (150, 30),
+			pos = (480, 180), style = wx.STAY_ON_TOP | wx.FRAME_NO_TASKBAR | wx.SIMPLE_BORDER)
 		self.panel = wx.Panel(self)
-		self.mainPad = StaticText(self.panel, -1,
-			label = "00:00:00", pos = (0, 0), size = (200, 40), style = wx.ALIGN_CENTER)
+		self.mainPad = Button(self.panel, -1,
+			label = "00:00:00", pos = (0, 0), size = (150, 30), style = wx.ALIGN_CENTER)
 		self.menu = wx.Menu()
 		self.clockExit = self.menu.Append(-1, "Exit")
 		#bind
-		#self.Bind(wx.EVT_ENTER_WINDOW, self.OnOpenMainFrame)
+		self.Bind(wx.wx.EVT_BUTTON, self.OnOpenMainFrame, self.mainPad)
 		self.Bind(wx.EVT_MENU, self.OnClockExit, self.clockExit)
 		self.Bind(wx.EVT_CONTEXT_MENU, self.OnShowMenu)
 
@@ -34,7 +35,7 @@ class ClockFrame(wx.Frame):
 	def __init__(self, parent):
 		wx.Frame.__init__(self, parent, -1, "Clock", size = (320, 240), 
 			pos = (480,180), 
-			style =  wx.CLOSE_BOX | wx.CAPTION | wx.FRAME_NO_TASKBAR | wx.STAY_ON_TOP)
+			style = wx.CLOSE_BOX | wx.CAPTION | wx.FRAME_NO_TASKBAR | wx.STAY_ON_TOP)
 
 		#panel and clockPad
 		self.panel = wx.Panel(self)
