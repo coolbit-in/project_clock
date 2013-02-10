@@ -9,13 +9,26 @@ class SuspendedFrame(wx.Frame):
 		self.panel = wx.Panel(self)
 		self.mainPad = StaticText(self.panel, -1,
 			label = "00:00:00", pos = (0, 0), size = (200, 40), style = wx.ALIGN_CENTER)
+		self.menu = wx.Menu()
+		self.clockExit = self.menu.Append(-1, "Exit")
 		#bind
-		self.Bind(wx.EVT_ENTER_WINDOW, self.OnOpenMainFrame)
+		#self.Bind(wx.EVT_ENTER_WINDOW, self.OnOpenMainFrame)
+		self.Bind(wx.EVT_MENU, self.OnClockExit, self.clockExit)
+		self.Bind(wx.EVT_CONTEXT_MENU, self.OnShowMenu)
+
 
 	def OnOpenMainFrame(self, event):
 		mainFrame = self.GetChildren()[1]
 		mainFrame.SetPosition((self.GetPositionTuple()[0] - 120, self.GetPositionTuple()[1] - 300));
 		mainFrame.Show()
+
+	def OnClockExit(self, event):
+		self.Destroy()
+
+	def OnShowMenu(self, event):
+		pos = event.GetPosition()
+		pos = self.ScreenToClient(pos)
+		self.PopupMenu(self.menu, pos)
 
 class ClockFrame(wx.Frame):
 	def __init__(self, parent):
