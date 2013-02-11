@@ -13,12 +13,38 @@ class SuspendedFrame(wx.Frame):
 		self.menu = wx.Menu()
 		self.clockExit = self.menu.Append(-1, "Exit")
 		#bind
-		self.Bind(wx.wx.EVT_BUTTON, self.OnOpenMainFrame, self.mainPad)
+		#self.Bind(wx.wx.EVT_LEFT_DCLICK, self.OnPass, self.mainPad)
 		self.Bind(wx.EVT_MENU, self.OnClockExit, self.clockExit)
-		self.Bind(wx.EVT_CONTEXT_MENU, self.OnShowMenu)
+		self.panel.Bind(wx.EVT_CONTEXT_MENU, self.OnShowMenu)
+		self.mainPad.Bind(wx.EVT_LEFT_DOWN, self.OnLeftDown)
+		#self.panel.Bind(wx.EVT_LEFT_DOWN, self.test)
+		self.mainPad.Bind(wx.EVT_LEFT_UP, self.OnLeftUp)
+		self.mainPad.Bind(wx.EVT_MOTION, self.OnMouseMove)
+		#var
+		self.IsMove = 0
 
+	def OnLeftDown(self, event):
+		mousePos = self.ClientToScreen(event.GetPosition())
+		framePos = self.GetPosition()
+		self.delta = wx.Point(mousePos.x - framePos.x, mousePos.y - framePos.y)
 
-	def OnOpenMainFrame(self, event):
+	def OnMouseMove(self, event):
+		if event.Dragging() and event.LeftIsDown():
+			mousePos = self.ClientToScreen(event.GetPosition())
+			newPos = (mousePos.x - self.delta.x, mousePos.y - self.delta.y)
+			self.Move(newPos)
+			self.IsMove = 1
+
+	def OnLeftUp(self, event):
+		if self.IsMove == 0:
+			self.OnOpenMainFrame()
+		else:
+			self.IsMove = 0
+	
+	def OnPass(self, event):
+		pass
+
+	def OnOpenMainFrame(self):
 		mainFrame = self.GetChildren()[1]
 		mainFrame.SetPosition((self.GetPositionTuple()[0] - 120, self.GetPositionTuple()[1] - 300));
 		mainFrame.Show()
@@ -30,12 +56,13 @@ class SuspendedFrame(wx.Frame):
 		pos = event.GetPosition()
 		pos = self.ScreenToClient(pos)
 		self.PopupMenu(self.menu, pos)
+		event.Skip()
 
 class ClockFrame(wx.Frame):
 	def __init__(self, parent):
 		wx.Frame.__init__(self, parent, -1, "Clock", size = (320, 240), 
 			pos = (480,180), 
-			style = wx.CLOSE_BOX | wx.CAPTION | wx.FRAME_NO_TASKBAR | wx.STAY_ON_TOP)
+			style = wx.CLOSE_BOX | wx.CAPTION | wx.FRAME_NO_TASKBAR)
 
 		#panel and clockPad
 		self.panel = wx.Panel(self)
