@@ -12,6 +12,10 @@ class SuspendedFrame(wx.Frame):
 			label = "00:00:00", pos = (0, 0), size = (150, 30), style = wx.ALIGN_CENTER)
 		self.menu = wx.Menu()
 		self.clockExit = self.menu.Append(-1, "Exit")
+
+		#timer
+		self.timer = wx.Timer(self)
+		self.timer.Start(998)
 		#bind
 		#self.Bind(wx.wx.EVT_LEFT_DCLICK, self.OnPass, self.mainPad)
 		self.Bind(wx.EVT_MENU, self.OnClockExit, self.clockExit)
@@ -20,6 +24,7 @@ class SuspendedFrame(wx.Frame):
 		#self.panel.Bind(wx.EVT_LEFT_DOWN, self.test)
 		self.mainPad.Bind(wx.EVT_LEFT_UP, self.OnLeftUp)
 		self.mainPad.Bind(wx.EVT_MOTION, self.OnMouseMove)
+		self.Bind(wx.EVT_TIMER, self.OnTimer, self.timer)
 		#var
 		self.IsMove = 0
 
@@ -48,6 +53,14 @@ class SuspendedFrame(wx.Frame):
 		mainFrame = self.GetChildren()[1]
 		mainFrame.SetPosition((self.GetPositionTuple()[0] - 120, self.GetPositionTuple()[1] - 300));
 		mainFrame.Show()
+	
+	def OnTimer(self, event):
+		self.CopyMainFrameLabel()
+		self.Refresh()
+			
+	def CopyMainFrameLabel(self):
+		mainFrame = self.GetChildren()[1]
+		self.mainPad.SetLabel(mainFrame.GetClockPadLabel())
 
 	def OnClockExit(self, event):
 		self.Destroy()
@@ -57,6 +70,7 @@ class SuspendedFrame(wx.Frame):
 		pos = self.ScreenToClient(pos)
 		self.PopupMenu(self.menu, pos)
 		event.Skip()
+
 
 class ClockFrame(wx.Frame):
 	def __init__(self, parent):
@@ -72,7 +86,7 @@ class ClockFrame(wx.Frame):
 		self.clockPad.SetForegroundColour("white")
 		self.clockFont = wx.Font(43, wx.SCRIPT, wx.NORMAL, wx.BOLD)
 		self.clockPad.SetFont(self.clockFont)
-		
+		self.clockPadLabel = ""
 		#buttons
 		self.startButton = wx.Button(parent = self.panel, label = "开始",
 			pos = (30, 150), size = (100, 60))
@@ -97,6 +111,9 @@ class ClockFrame(wx.Frame):
 		self.showTime = self.nowTime - self.startTime
 		self.clockPadLabel = "%02d:%02d:%02d" % self.InitTimePrint(self.showTime)
 		self.clockPad.SetLabel(self.clockPadLabel)
+
+	def GetClockPadLabel(self):
+		return self.clockPadLabel
 
 	def InitTimePrint(self, tmp):
 		tmp = round(tmp)
