@@ -81,13 +81,15 @@ class ClockFrame(wx.Frame):
 		#panel and clockPad
 		self.panel = wx.Panel(self)
 		self.clockPad = StaticText(self.panel, -1, 
-			label = "00:00:00", pos = (0, 30), size = (320, -1), style = wx.ALIGN_CENTER)
+			label = "00:00:00", pos = (0, 50), size = (320, -1), style = wx.ALIGN_CENTER)
 		self.clockPad.SetBackgroundColour("black")
 		self.clockPad.SetForegroundColour("white")
 		self.clockFont = wx.Font(43, wx.SCRIPT, wx.NORMAL, wx.BOLD)
 		self.clockPad.SetFont(self.clockFont)
 		self.clockPadLabel = ""
 		#buttons
+		self.selectButton = wx.ToggleButton(parent = self.panel, label = "进入倒计时模式",
+			pos = (90, 5), size = (140, 45))
 		self.startButton = wx.Button(parent = self.panel, label = "开始",
 			pos = (30, 150), size = (100, 60))
 		self.clearButton = wx.Button(parent = self.panel, label = "清零",
@@ -101,6 +103,7 @@ class ClockFrame(wx.Frame):
 		self.Bind(wx.EVT_BUTTON, self.OnStartButton, self.startButton)
 		self.Bind(wx.EVT_BUTTON, self.OnClearButton, self.clearButton)
 		self.Bind(wx.EVT_TIMER, self.OnTimer, self.timer)
+		self.Bind(wx.EVT_TOGGLEBUTTON, self.OnSelectButton, self.selectButton)
 
 	def OnStartButton(self, event):
 		self.startTime = time.time()
@@ -125,11 +128,37 @@ class ClockFrame(wx.Frame):
 	def OnClearButton(self, event):
 		self.timer.Stop()
 		self.clockPad.SetLabel("00:00:00")
-	
+			
 	def OnHide(self, event):
 		self.Hide()
-		if self.GetParent().IsShown() == False :
+		if self.GetParent().IsShown() == False:
 			self.GetParent().Show()
+
+	def OnSelectButton(self, event):
+		if self.selectButton.GetValue() == True:
+			self.selectButton.SetLabel("返回计时模式")
+			selectTimeFrame = SelectTimeFrame(parent = self)
+			selectTimeFrame.Show()
+		else:
+			self.selectButton.SetLabel("进入倒计时模式")
+
+class SelectTimeFrame(wx.Frame):
+
+	def __init__(self, parent):
+		wx.Frame.__init__(self, parent, -1, "", size = (240, 180), 
+			pos = (480,180), 
+			style = wx.CLOSE_BOX | wx.CAPTION | wx.FRAME_NO_TASKBAR)
+		self.panel = wx.Panel(self)
+		self.selectHour = wx.SpinCtrl(parent = self, pos = (1,1), size = (50,20), min = 0, max = 23, initial = 0)
+		self.selectMinute = wx.SpinCtrl(parent = self, pos = (1, 70), size = (50, 20), min = 0, max = 59, initial = 0)
+		self.selectSecond = wx.SpinCtrl(parent = self, pos = (1, 140), size = (50, 20), min = 0, max = 59, initial = 0)
+
+
+
+
+
+
+
 
 if __name__ == '__main__':
 	app = wx.PySimpleApp()
