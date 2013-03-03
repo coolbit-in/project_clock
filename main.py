@@ -184,13 +184,6 @@ class SelectTimeFrame(wx.Frame):
 	def OnCancelButton(self, event):
 		self.Destroy()
 
-
-
-
-
-
-
-
 if __name__ == '__main__':
 	app = wx.PySimpleApp()
 	suspendedFrame = SuspendedFrame(parent = None)
