@@ -87,6 +87,9 @@ class ClockFrame(wx.Frame):
 		self.clockFont = wx.Font(43, wx.SCRIPT, wx.NORMAL, wx.BOLD)
 		self.clockPad.SetFont(self.clockFont)
 		self.clockPadLabel = ""
+		self.startTime = 0
+		self.endTime = 0 
+		self.time = 0
 		#buttons
 		self.selectButton = wx.ToggleButton(parent = self.panel, label = "进入倒计时模式",
 			pos = (90, 5), size = (140, 45))
@@ -106,12 +109,24 @@ class ClockFrame(wx.Frame):
 		self.Bind(wx.EVT_TOGGLEBUTTON, self.OnSelectButton, self.selectButton)
 
 	def OnStartButton(self, event):
-		self.startTime = time.time()
-		self.timer.Start(998)
+		if self.selectButton.GetValue() == True:
+			self.startTime = time.time()
+			self.endTime = self.startTime + self.time
+			self.timer.Start(998)
+		else:	
+			self.startTime = time.time()
+			self.timer.Start(998)
 
 	def OnTimer(self, event):
 		self.nowTime = time.time()
-		self.showTime = self.nowTime - self.startTime
+		if self.selectButton.GetValue() == True:
+			self.showTime = self.endTime - self.nowTime
+			if int(self.showTime) == 0:
+				self.clockPad.SetLabel("00:00:00")
+				messageBox = wx.MessageBox("时间到啦，快休息一会儿！！", caption = "时间到啦", style = wx.OK)
+				self.timer.Stop()
+		else:
+			self.showTime = self.nowTime - self.startTime
 		self.clockPadLabel = "%02d:%02d:%02d" % self.InitTimePrint(self.showTime)
 		self.clockPad.SetLabel(self.clockPadLabel)
 
@@ -126,7 +141,7 @@ class ClockFrame(wx.Frame):
 		return (tmp_hour, tmp_min, tmp_sec)
 
 	def OnClearButton(self, event):
-		self.timer.Stop()
+		self.timer.Stop() 
 		self.clockPad.SetLabel("00:00:00")
 			
 	def OnHide(self, event):
@@ -137,8 +152,8 @@ class ClockFrame(wx.Frame):
 	def OnSelectButton(self, event):
 		if self.selectButton.GetValue() == True:
 			self.selectButton.SetLabel("返回计时模式")
-			selectTimeFrame = SelectTimeFrame(parent = self)
-			selectTimeFrame.Show()
+			self.selectTimeFrame = SelectTimeFrame(parent = self)
+			self.selectTimeFrame.Show()
 		else:
 			self.selectButton.SetLabel("进入倒计时模式")
 
@@ -149,9 +164,25 @@ class SelectTimeFrame(wx.Frame):
 			pos = (480,180), 
 			style = wx.CLOSE_BOX | wx.CAPTION | wx.FRAME_NO_TASKBAR)
 		self.panel = wx.Panel(self)
-		self.selectHour = wx.SpinCtrl(parent = self, pos = (1,1), size = (50,20), min = 0, max = 23, initial = 0)
-		self.selectMinute = wx.SpinCtrl(parent = self, pos = (1, 70), size = (50, 20), min = 0, max = 59, initial = 0)
-		self.selectSecond = wx.SpinCtrl(parent = self, pos = (1, 140), size = (50, 20), min = 0, max = 59, initial = 0)
+		self.selectHour = wx.SpinCtrl(parent = self, pos = (10, 40), size = (45,30), min = 0, max = 23, initial = 0)
+		self.selectMinute = wx.SpinCtrl(parent = self, pos = (90, 40), size = (45, 30), min = 0, max = 59, initial = 0)
+		self.selectSecond = wx.SpinCtrl(parent = self, pos = (170, 40), size = (45, 30), min = 0, max = 59, initial = 0)
+		self.submitButton = wx.Button(parent = self, label = "确定", pos = (30, 115), size = (60, 40))
+		self.cancelButton = wx.Button(parent = self, label = "取消", pos = (150, 115), size = (60, 40))
+		self.textHour = StaticText(parent = self, ID = -1, label = "时", pos = (60, 45), size = (30, 30))
+		self.textMinute = StaticText(parent = self, ID = -1, label = "分", pos = (140, 45), size = (30, 30))
+		self.textSecond = StaticText(parent = self, ID = -1, label = "秒", pos = (220, 45), size = (30, 30))
+		#bind
+		self.Bind(wx.EVT_BUTTON, self.OnSubmitButton, self.submitButton)
+		self.Bind(wx.EVT_BUTTON, self.OnCancelButton, self.cancelButton)
+
+	def OnSubmitButton(self, event):
+		self.GetParent().time = self.selectHour.GetValue() * 3600 + self.selectMinute.GetValue() * 60 + self.selectSecond.GetValue()
+		self.GetParent().clockPad.SetLabel("%02d:%02d:%02d" % (self.selectHour.GetValue(), self.selectMinute.GetValue(), self.selectSecond.GetValue()))
+		self.Destroy()
+	
+	def OnCancelButton(self, event):
+		self.Destroy()
 
 
 
